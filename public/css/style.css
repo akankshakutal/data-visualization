@@ -2,6 +2,19 @@ svg {
   border: 1px solid black;
 }
 
-svg > rect {
+svg > g > rect {
   fill: gray;
+}
+
+.axis-label {
+  font-size: 20px;
+  text-anchor: middle;
+}
+
+.row {
+  height: 700px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
 }
