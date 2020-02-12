@@ -5,6 +5,7 @@ const drawBuildings = companies => {
   const margin = { left: 100, right: 100, top: 10, bottom: 150 };
   const width = chartSize.width - (margin.left + margin.right);
   const height = chartSize.height - (margin.top + margin.bottom);
+  const colors = d3.scaleOrdinal(d3.schemeCategory10);
 
   const x = d3
     .scaleBand()
@@ -73,6 +74,7 @@ const drawBuildings = companies => {
     .append("rect")
     .attr("y", b => y(b.CMP))
     .attr("x", b => x(b.Name))
+    .attr("fill", b => colors(b.Name))
     .attr("width", 60)
     .attr("height", b => y(0) - y(b.CMP));
 };
