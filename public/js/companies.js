@@ -11,6 +11,7 @@ const MARGIN = {
 
 const HEIGHT = CHART_SIZE.height - MARGIN.top - MARGIN.bottom;
 const WIDTH = CHART_SIZE.width - MARGIN.left - MARGIN.right;
+const c = d3.scaleOrdinal(d3.schemeRdPu[7]);
 const percentageFormat = d => `${d}%`;
 const rupeeFormat = d => `${d} ₹`;
 const kCroreFormat = d => rupeeFormat(`${d}k Cr`);
@@ -48,14 +49,13 @@ const drawCompanies = function(companies) {
     .domain(_.map(companies, "Name"))
     .padding(0.3);
 
-  const c = d3.scaleOrdinal(d3.schemeRdPu[7]);
-
   const svg = container
     .attr("width", CHART_SIZE.width)
     .attr("height", CHART_SIZE.height);
 
   const g = svg
     .append("g")
+    .attr("class", "companies")
     .attr("transform", `translate(${MARGIN.left},${MARGIN.right})`);
 
   const rectangles = g.selectAll("rect").data(companies);
@@ -142,6 +142,16 @@ const updateCompanies = function(companies, field) {
     .exit()
     .remove();
 
+  d3.select(".companies")
+    .selectAll("rect")
+    .data(companies)
+    .enter()
+    .append("rect")
+    .attr("y", b => y(0))
+    .attr("x", (b, i) => x(b.Name))
+    .attr("width", x.bandwidth)
+    .attr("fill", b => c(b.Name));
+
   svg
     .selectAll("g rect")
     .data(companies)
@@ -159,16 +169,20 @@ const parseCompany = function({ Name, ...rest }) {
   return { Name, ...rest };
 };
 
+const frequentlyMoveCompanies = (src, dest) => {
+  setInterval(() => {
+    const c = src.shift();
+    if (c) dest.push(c);
+    else [src, dest] = [dest, src];
+  }, 1000);
+};
+
 const initializeVizualization = function(companies) {
   drawCompanies(companies);
-  const newCompanies = [];
-  let times = 0;
   setInterval(() => {
     updateCompanies(companies, cycler());
   }, 1000);
-  setInterval(() => {
-    companies.shift();
-  }, 2000);
+  frequentlyMoveCompanies(companies, []);
 };
 
 const main = () => {
