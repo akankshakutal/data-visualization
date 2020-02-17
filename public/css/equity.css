@@ -1,0 +1,24 @@
+.chart-data {
+  width: 100px;
+}
+
+svg {
+  border: 1px solid black;
+}
+
+.axis-label {
+  font-size: 20px;
+  text-anchor: middle;
+}
+
+.close {
+  fill: none;
+  stroke: black;
+  stroke-width: 2px;
+}
+
+.sma {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
