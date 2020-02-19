@@ -2,6 +2,8 @@ const chartSize = { width: 1420, height: 700 };
 const margin = { left: 100, right: 10, top: 30, bottom: 70 };
 const width = chartSize.width - margin.left - margin.right;
 const height = chartSize.height - margin.top - margin.bottom;
+let startingDate;
+let endingDate;
 
 const showData = quotes => {
   const toLine = b => `<strong>${b.date}</strong> <i>${b.Close}</i>`;
@@ -51,6 +53,11 @@ const update = quotes => {
       .x(q => x(q.Time))
       .y(q => y(q[field]));
 
+  const closePath = d3.selectAll("path.close");
+  closePath.remove();
+  const smaPath = d3.selectAll("path.sma");
+  smaPath.remove();
+
   g.append("path")
     .attr("class", "close")
     .attr("d", line("Close")(quotes));
@@ -58,6 +65,34 @@ const update = quotes => {
   g.append("path")
     .attr("class", "sma")
     .attr("d", line("sma")(_.filter(quotes, "sma")));
+};
+
+const getRequiredQuotes = (quotes, startingDate, endingDate) => {
+  return quotes.filter(
+    element => startingDate <= element.date && element.date <= endingDate
+  );
+};
+
+const drawSlider = quotes => {
+  const firstDate = new Date(_.first(quotes)["date"]);
+  const lastDate = new Date(_.last(quotes)["date"]);
+  const startingTime = firstDate.getTime();
+  const endingTime = lastDate.getTime();
+  const slider = createD3RangeSlider(
+    startingTime,
+    endingTime,
+    "#slider-container"
+  );
+
+  slider.onChange(newRange => {
+    startingDate = new Date(newRange.begin).toJSON().split("T")[0];
+    endingDate = new Date(newRange.end).toJSON().split("T")[0];
+    const requiredQuotes = getRequiredQuotes(quotes, startingDate, endingDate);
+    update(requiredQuotes);
+    d3.select("#range-label").text(startingDate + " - " + endingDate);
+  });
+
+  slider.range(startingTime, endingTime);
 };
 
 const initChart = () => {
@@ -121,6 +156,7 @@ const analyzeData = quotes => {
 const startVisualization = quotes => {
   const transaction = analyzeData(quotes);
   // showData(transaction);
+  drawSlider(quotes);
   initChart();
   update(quotes);
 };
