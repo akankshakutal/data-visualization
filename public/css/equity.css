@@ -6,7 +6,19 @@ svg {
   border: 1px solid black;
 }
 
+.user-input {
+  display: flex;
+  justify-content: space-between;
+}
+
+input {
+  height: 30px;
+}
+label {
+  line-height: 2;
+}
 #slider-container {
+  width: 1000px;
   position: relative;
   height: 30px;
   background-color: #eeeef5;

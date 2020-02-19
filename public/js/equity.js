@@ -5,6 +5,20 @@ const height = chartSize.height - margin.top - margin.bottom;
 let startingDate;
 let endingDate;
 
+const applyUserPreferance = quotes => {
+  const period = 100;
+  const offset = 1;
+  d3.select("#period").on("input", function() {
+    assignMovingAverage(quotes, +this.value, offset);
+    update(quotes);
+  });
+
+  d3.select("#offset").on("input", function() {
+    assignMovingAverage(quotes, period, +this.value);
+    update(quotes);
+  });
+};
+
 const showData = quotes => {
   const toLine = b => `<strong>${b.date}</strong> <i>${b.Close}</i>`;
   document.querySelector("#chart-data").innerHTML = quotes.buy
@@ -93,6 +107,7 @@ const drawSlider = quotes => {
   });
 
   slider.range(startingTime, endingTime);
+  applyUserPreferance(quotes);
 };
 
 const initChart = () => {
@@ -124,9 +139,9 @@ const initChart = () => {
   g.append("g").attr("class", "y axis");
 };
 
-const assignMovingAverage = (quotes, period) => {
-  for (i = period; i <= quotes.length; i++) {
-    const sets = _.slice(quotes, i - period, i);
+const assignMovingAverage = (quotes, period, offset) => {
+  for (i = period + offset; i <= quotes.length; i++) {
+    const sets = _.slice(quotes, i - period - offset, i - offset);
     const sma = _.round(
       _.reduce(
         sets,
@@ -141,7 +156,7 @@ const assignMovingAverage = (quotes, period) => {
 };
 
 const analyzeData = quotes => {
-  assignMovingAverage(quotes, 100);
+  assignMovingAverage(quotes, 100, 1);
   const buy = _.filter(quotes, element => {
     return _.round(element.Close) > element.sma;
   });
@@ -154,8 +169,7 @@ const analyzeData = quotes => {
 };
 
 const startVisualization = quotes => {
-  const transaction = analyzeData(quotes);
-  // showData(transaction);
+  analyzeData(quotes);
   drawSlider(quotes);
   initChart();
   update(quotes);

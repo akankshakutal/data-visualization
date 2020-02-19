@@ -18,8 +18,20 @@
 
     <div class="container">
       <div class="row">
-        <div id="slider-container"></div>
-        <div id="range-label"></div>
+        <div class="user-input">
+          <div>
+            <div id="slider-container"></div>
+            <div id="range-label"></div>
+          </div>
+          <div>
+            <label>Offset</label>
+            <input id="offset" value="1" type="number" />
+          </div>
+          <div>
+            <label>SMA Period</label>
+            <input id="period" value="100" type="number" />
+          </div>
+        </div>
         <div id="chart-data"></div>
         <div id="chart-area">
           <svg></svg>
