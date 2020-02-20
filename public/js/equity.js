@@ -19,21 +19,6 @@ const applyUserPreferance = quotes => {
   });
 };
 
-const showData = quotes => {
-  const toTr = (b, i) => {
-    return `<tr>
-    <td>${i + 1}</td>
-    <td>${b.buy.date}</td>
-    <td>${b.buy.Close}</td>
-    <td>${b.sale.date}</td>
-    <td>${b.sale.Close}</td>
-    </tr>`;
-  };
-  document.querySelector("#buy-sale-data").innerHTML = quotes
-    .map(toTr)
-    .join("");
-};
-
 const parseNumerics = ({ date, Volume, AdjClose, ...rest }) => {
   _.forEach(rest, (v, k) => (rest[k] = +v));
   const Time = new window.Date(date);
@@ -192,9 +177,58 @@ const analyzeData = quotes => {
   return transactions;
 };
 
+const titles = ["Sr. No.", "Buy Date", "Buy Price", "Sale Date", "Sale Price"];
+
+const getMappedValue = (quote, title, index) => {
+  console.log(quote);
+  switch (title) {
+    case "Sr. No.":
+      return index;
+    case "Buy Date":
+      return quote.buy.date;
+    case "Buy Price":
+      return quote.buy.Close;
+    case "Sale Date":
+      return quote.sale.date;
+    case "Sale Price":
+      return quote.sale.Close;
+  }
+};
+
+const drawTable = quotes => {
+  const table = d3.select("#chart-data").append("table");
+  table
+    .append("thead")
+    .append("tr")
+    .selectAll("th")
+    .data(titles)
+    .enter()
+    .append("th")
+    .text(d => d);
+
+  const rows = table
+    .append("tbody")
+    .selectAll("tr")
+    .data(quotes)
+    .enter()
+    .append("tr");
+
+  rows
+    .selectAll("td")
+    .data((d, i) => {
+      return titles.map(k => {
+        return { value: getMappedValue(d, k, i), name: k };
+      });
+    })
+    .enter()
+    .append("td")
+    .attr("data-th", d => d.name)
+    .text(d => d.value);
+};
+
 const startVisualization = quotes => {
   const transactions = analyzeData(quotes);
-  showData(transactions);
+  drawTable(transactions);
   drawSlider(quotes);
   initChart();
   update(quotes);
