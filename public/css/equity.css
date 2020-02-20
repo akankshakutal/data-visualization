@@ -47,6 +47,11 @@ table {
   font-size: 20px;
 }
 
+#table-container {
+  display: flex;
+  justify-content: space-around;
+}
+
 td {
   width: 150px;
   border: 1px solid black;

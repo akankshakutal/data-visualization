@@ -4,6 +4,22 @@ const width = chartSize.width - margin.left - margin.right;
 const height = chartSize.height - margin.top - margin.bottom;
 let startingDate;
 let endingDate;
+const titles = [
+  "Sr. No.",
+  "Buy Date",
+  "Buy Price",
+  "Sale Date",
+  "Sale Price",
+  "Profit/Loss"
+];
+const statisticTableHeader = [
+  "No. of Transactions",
+  "No. of Profit Transactions",
+  "No. of Loss Transactions",
+  "Average Profit Transactions",
+  "Average Loss Transactions",
+  "NET"
+];
 
 const applyUserPreferance = quotes => {
   const period = 100;
@@ -177,10 +193,7 @@ const analyzeData = quotes => {
   return transactions;
 };
 
-const titles = ["Sr. No.", "Buy Date", "Buy Price", "Sale Date", "Sale Price"];
-
 const getMappedValue = (quote, title, index) => {
-  console.log(quote);
   switch (title) {
     case "Sr. No.":
       return index;
@@ -192,10 +205,12 @@ const getMappedValue = (quote, title, index) => {
       return quote.sale.date;
     case "Sale Price":
       return quote.sale.Close;
+    case "Profit/Loss":
+      return Math.round(quote.sale.Close - quote.buy.Close);
   }
 };
 
-const drawTable = quotes => {
+const drawTable = (quotes, titles) => {
   const table = d3.select("#chart-data").append("table");
   table
     .append("thead")
@@ -226,9 +241,70 @@ const drawTable = quotes => {
     .text(d => d.value);
 };
 
+const getProftOrLoss = quote => Math.round(quote.sale.Close - quote.buy.Close);
+
+const getStatestics = transactions => {
+  const noOfTransactions = transactions.length;
+  let lossTransactions = 0;
+  let profitTransactions = 0;
+  let averageProfit = 0;
+  let averageLoss = 0;
+  let net = 0;
+  transactions.forEach(transaction => {
+    const profitOrLoss = getProftOrLoss(transaction);
+    net += profitOrLoss;
+    if (profitOrLoss < 0) {
+      lossTransactions++;
+      averageLoss += profitOrLoss;
+    } else {
+      profitTransactions++;
+      averageProfit += profitOrLoss;
+    }
+  });
+
+  return {
+    noOfTransactions,
+    profitTransactions,
+    lossTransactions,
+    averageProfit,
+    averageLoss,
+    net
+  };
+};
+
+const drawStatisticsTable = transactions => {
+  let index = 0;
+  const table = d3.select("#statistics-table").append("table");
+  table
+    .append("thead")
+    .append("tr")
+    .selectAll("th")
+    .data(["Title", "statistics"])
+    .enter()
+    .append("th")
+    .text(d => d);
+
+  table.append("tbody").attr("class", "statistics-content");
+
+  const statistics = getStatestics(transactions);
+  const toTr = b => {
+    result = `<tr>
+    <td>${statisticTableHeader[index]}</td>
+    <td>${b}</td>
+    </tr>`;
+    index++;
+    return result;
+  };
+  document.querySelector(".statistics-content").innerHTML = _.map(
+    statistics,
+    toTr
+  ).join("");
+};
+
 const startVisualization = quotes => {
   const transactions = analyzeData(quotes);
-  drawTable(transactions);
+  drawTable(transactions, titles);
+  drawStatisticsTable(transactions);
   drawSlider(quotes);
   initChart();
   update(quotes);
