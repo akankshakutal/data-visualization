@@ -40,3 +40,19 @@ label {
   stroke: steelblue;
   stroke-width: 2px;
 }
+
+table {
+  border-collapse: collapse;
+  text-align: center;
+  font-size: 20px;
+}
+
+td {
+  width: 150px;
+  border: 1px solid black;
+}
+
+th {
+  width: 150px;
+  border: 1px solid black;
+}

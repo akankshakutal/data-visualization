@@ -32,9 +32,23 @@
             <input id="period" value="100" type="number" />
           </div>
         </div>
-        <div id="chart-data"></div>
         <div id="chart-area">
           <svg></svg>
+        </div>
+        <div id="chart-data">
+          <table>
+            <thead>
+              <tr>
+                <th>Sr. No.</th>
+                <th>Buy Date</th>
+                <th>Buy Price</th>
+                <th>Sale Date</th>
+                <th>Sale Price</th>
+                <!-- <th>NET</th> -->
+              </tr>
+            </thead>
+            <tbody id="buy-sale-data"></tbody>
+          </table>
         </div>
       </div>
     </div>

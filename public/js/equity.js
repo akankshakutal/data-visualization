@@ -20,10 +20,18 @@ const applyUserPreferance = quotes => {
 };
 
 const showData = quotes => {
-  const toLine = b => `<strong>${b.date}</strong> <i>${b.Close}</i>`;
-  document.querySelector("#chart-data").innerHTML = quotes.buy
-    .map(toLine)
-    .join("<hr/>");
+  const toTr = (b, i) => {
+    return `<tr>
+    <td>${i + 1}</td>
+    <td>${b.buy.date}</td>
+    <td>${b.buy.Close}</td>
+    <td>${b.sale.date}</td>
+    <td>${b.sale.Close}</td>
+    </tr>`;
+  };
+  document.querySelector("#buy-sale-data").innerHTML = quotes
+    .map(toTr)
+    .join("");
 };
 
 const parseNumerics = ({ date, Volume, AdjClose, ...rest }) => {
@@ -155,21 +163,38 @@ const assignMovingAverage = (quotes, period, offset) => {
   }
 };
 
+const detectTransactions = quotes => {
+  const transactions = _.filter(quotes, "sma").reduce(
+    (acc, quote) => {
+      const last = acc[acc.length - 1];
+      if (quote.Close > quote.sma && last.buy == undefined) {
+        last.buy = quote;
+      }
+      if (
+        quote.Close < quote.sma &&
+        last.buy != undefined &&
+        last.sale == undefined
+      ) {
+        last.sale = quote;
+        acc.push({});
+      }
+      return acc;
+    },
+    [{}]
+  );
+  transactions[transactions.length - 1].sale = _.last(quotes);
+  return transactions;
+};
+
 const analyzeData = quotes => {
   assignMovingAverage(quotes, 100, 1);
-  const buy = _.filter(quotes, element => {
-    return _.round(element.Close) > element.sma;
-  });
-
-  const sales = _.filter(quotes, element => {
-    return _.round(element.Close) < element.sma;
-  });
-
-  return { buy, sales };
+  const transactions = detectTransactions(quotes);
+  return transactions;
 };
 
 const startVisualization = quotes => {
-  analyzeData(quotes);
+  const transactions = analyzeData(quotes);
+  showData(transactions);
   drawSlider(quotes);
   initChart();
   update(quotes);
